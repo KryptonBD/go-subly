@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"subly/data"
@@ -21,8 +20,6 @@ func main() {
 		log.Fatal("Error loading Environment file")
 	}
 	//DataBase
-	fmt.Println("Hello from go")
-
 	db := initDB()
 	// db.Ping()
 
@@ -45,6 +42,9 @@ func main() {
 		InfoLog:  infoLog,
 		Models:   data.New(db),
 	}
+
+	app.Mailer = app.createMail()
+	go app.listenForMail()
 
 	// listen for web connection
 	app.server()

@@ -18,6 +18,7 @@ type Config struct {
 	ErrorLog *log.Logger
 	Wait     *sync.WaitGroup
 	Models   data.Models
+	Mailer   Mail
 }
 
 func (app *Config) server() {
@@ -33,4 +34,30 @@ func (app *Config) server() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
+
+func (app *Config) createMail() Mail {
+	errorChan := make(chan error)
+	mailerChan := make(chan Message, 100)
+	mailerDoneChan := make(chan bool)
+
+	m := Mail{
+		Domain:      "localhost",
+		Host:        "localhost",
+		Port:        1025,
+		Encryption:  "none",
+		FromName:    "Info",
+		FromAddress: "info@subly.tech",
+		Wait:        app.Wait,
+		ErrorChan:   errorChan,
+		MailerChan:  mailerChan,
+		DoneChan:    mailerDoneChan,
+	}
+
+	return m
+}
+
+func (app *Config) sendEmail(msg Message) {
+	app.Wait.Add(1)
+	app.Mailer.MailerChan <- msg
 }
