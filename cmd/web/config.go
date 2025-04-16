@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"subly/data"
 	"sync"
 
 	"github.com/alexedwards/scs/v2"
@@ -16,6 +17,7 @@ type Config struct {
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
 	Wait     *sync.WaitGroup
+	Models   data.Models
 }
 
 func (app *Config) server() {

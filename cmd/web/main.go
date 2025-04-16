@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"subly/data"
 	"sync"
 
 	_ "github.com/jackc/pgconn"
@@ -42,6 +43,7 @@ func main() {
 		Wait:     &wg,
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
+		Models:   data.New(db),
 	}
 
 	// listen for web connection

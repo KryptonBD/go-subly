@@ -2,15 +2,20 @@ package main
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"subly/data"
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gomodule/redigo/redis"
+	_ "github.com/jackc/pgconn"
+	_ "github.com/jackc/pgx/v4"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 func initDB() *sql.DB {
@@ -75,6 +80,8 @@ func openDB(dataSourceName string) (*sql.DB, error) {
 }
 
 func initSession() *scs.SessionManager {
+	gob.Register(data.User{})
+
 	session := scs.New()
 	session.Store = redisstore.New(initRedis())
 	session.Lifetime = 24 * time.Hour
@@ -86,10 +93,14 @@ func initSession() *scs.SessionManager {
 }
 
 func initRedis() *redis.Pool {
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+
+	redisURL := fmt.Sprintf("%s:%s", redisHost, redisPort)
 	redisPool := &redis.Pool{
 		MaxIdle: 10,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", os.Getenv("REDIS"))
+			return redis.Dial("tcp", redisURL)
 		},
 	}
 
